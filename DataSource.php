@@ -26,7 +26,7 @@ class DataSource
 
     const PASSWORD = '';
 
-    const DATABASENAME = 'ci_washup';
+    const DATABASENAME = 'import_excel';
 
     private $conn;
 

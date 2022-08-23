@@ -29,52 +29,33 @@ if (isset($_POST["import"])) {
         $spreadSheetAry = $excelSheet->toArray();
         $sheetCount = count($spreadSheetAry);
 
-        $successCode = [];
+        $successItems = [];
         for ($i = 0; $i <= $sheetCount; $i++) {
-            $code = "";
+            $name = '';
+            $description = '';
             if (isset($spreadSheetAry[$i][0])) {
-                $code = mysqli_real_escape_string($conn, $spreadSheetAry[$i][0]);
+                $name = mysqli_real_escape_string($conn, $spreadSheetAry[$i][0]);
             }
 
-            if (!empty($code)) {
-                $query = "insert into promotions(PromotionCode,PromotionName,PromotionNameEng,PromotionContent,PromotionContentEng,BeginDate,EndDate,MinCost,LimitAll,LimitPerUser,ApplyFrom,IsAllCustomer,IsAllService,StatusId,OrderPercent,OrderPaidVN,PromotionImage,CustomerIds,CrUserId,CrDateTime) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                $paramType = "sssssssdddddddddssds";
+            if (isset($spreadSheetAry[$i][0])) {
+                $description = mysqli_real_escape_string($conn, $spreadSheetAry[$i][0]);
+            }
+
+            if (!empty($name) || !empty($description)) {
+                $query = "insert into tbl_test(name,descriptipn) values(?,?)";
+                $paramType = "ss";
 
                 $paramArray = array(
                     $code,
-                    'GRABWU',
-                    'GRABWU',
-                    '<p></p>',
-                    '<p></p>',
-                    '2022-08-22',
-                    null,
-                    0,
-                    1,
-                    0,
-                    3,
-                    1,
-                    0,
-                    2,
-                    100,
-                    0,
-                    '',
-                    null,
-                    1,
-                    date('Y-m-d H:i:s')
+                    $description
                 );
 
                 $insertId = $db->insert($query, $paramType, $paramArray);
                 // $query = "insert into tbl_test(name,description) values('" . $name . "','" . $description . "')";
-                $result1 = mysqli_query($conn, $query);
+                $result = mysqli_query($conn, $query);
 
                 if (!empty($insertId)) {
-                    $successCode[] = $insertId . '-' .$code;
-                    // Update promotion for products (services)
-                    $listProducts = [111, 116, 121, 128, 109];
-                    foreach( $listProducts as $productId) {
-                        $query = "insert into promotionproducts(PromotionId,ProductId) values('" . $insertId . "','" . $productId . "')";
-                        $result = mysqli_query($conn, $query);
-                    }
+                    $successItems[] = $insertId . '-' .$code;
 
                     $type = "success";
                     $message = "Excel Data Imported into the Database";
@@ -181,16 +162,16 @@ if (isset($_POST["import"])) {
             echo $message . PHP_EOL;
         }
 
-        echo "<br />Total codes insert: ".count($successCode) . PHP_EOL;
-        var_dump($successCode);
+        echo "<br />Total items insert: ".count($successItems) . PHP_EOL;
+        var_dump($successItems);
         ?>
     </div>
 
 
     <?php
-    $sqlSelect = "SELECT * FROM promotions";
+    $sqlSelect = "SELECT * FROM tbl_test";
     $result = $db->select($sqlSelect);
-    if (!!empty($result))
+    if (!empty($result))
     {
     ?>
 
@@ -198,8 +179,8 @@ if (isset($_POST["import"])) {
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Code</th>
                     <th>Name</th>
+                    <th>Descriptipn</th>
 
                 </tr>
             </thead>
@@ -208,9 +189,9 @@ if (isset($_POST["import"])) {
             ?>
                 <tbody>
                     <tr>
-                        <td><?php echo $row['PromotionId']; ?></td>
-                        <td><?php echo $row['PromotionCode']; ?></td>
-                        <td><?php echo $row['PromotionName']; ?></td>
+                        <td><?php echo $row['id']; ?></td>
+                        <td><?php echo $row['name']; ?></td>
+                        <td><?php echo $row['descriptipn']; ?></td>
                     </tr>
                 <?php
             }
